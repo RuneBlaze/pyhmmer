@@ -15,6 +15,8 @@ See Also:
 cimport cython
 from cpython.ref cimport PyObject
 from cpython.exc cimport PyErr_Clear
+from cython.view cimport array as cvarray
+from cython cimport view
 from libc.stdlib cimport malloc, realloc, free
 from libc.stdint cimport uint32_t
 from libc.stdio cimport fprintf, FILE, stdout, fclose
@@ -804,6 +806,42 @@ cdef class Hit:
         return self._hit.flags & p7_hitflags_e.p7_IS_DUPLICATE
 
 
+cdef class IndirectMatrix:
+    # cdef Py_ssize_t ncols
+    cdef Py_ssize_t shape[2]
+    cdef Py_ssize_t strides[2]
+    cdef float** data
+
+    def __cinit__(self, int nrows, int ncols):
+        self.shape[0] = nrows
+        self.shape[1] = ncols
+
+        self.strides[0] = sizeof(float*)
+        self.strides[1] = sizeof(float)
+
+        # self.data = data
+    
+    cdef set_data(self, float** data):
+        self.data = data
+    
+    def __getbuffer__(self, Py_buffer* buffer, int flags):
+        if self.data is NULL:
+            raise Exception("data is NULL")
+        
+        buffer.buf = <void*> self.data
+        buffer.obj = self
+        buffer.format = 'f'
+        buffer.internal = NULL
+        buffer.itemsize = sizeof(float)
+        buffer.shape = self.shape
+        buffer.strides = self.strides
+        buffer.suboffsets = [0, -1]
+        buffer.ndim = 2
+    
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+
 @cython.freelist(8)
 cdef class HMM:
     """A data structure storing the Plan7 Hidden Markov Model.
@@ -887,6 +925,30 @@ cdef class HMM:
         """
         assert self._hmm != NULL
         return None if self._hmm.acc == NULL else <bytes> self._hmm.acc
+
+    @property
+    def mat(self):
+        assert self._hmm != NULL
+        wrapper = IndirectMatrix(self._hmm.M + 1, self._hmm.abc.K)
+        wrapper.set_data(self._hmm.mat)
+        cdef float[::view.indirect_contiguous, ::1] view = wrapper
+        return view
+
+    @property
+    def ins(self):
+        assert self._hmm != NULL
+        wrapper = IndirectMatrix(self._hmm.M + 1, self._hmm.abc.K)
+        wrapper.set_data(self._hmm.ins)
+        cdef float[::view.indirect_contiguous, ::1] view = wrapper
+        return view
+
+    @property
+    def trans(self):
+        assert self._hmm != NULL
+        wrapper = IndirectMatrix(self._hmm.M + 1, 7)
+        wrapper.set_data(self._hmm.t)
+        cdef float[::view.indirect_contiguous, ::1] view = wrapper
+        return view
 
     @accession.setter
     def accession(self, bytes accession):
