@@ -92,6 +92,7 @@ cdef class HMM:
     cpdef void write(self, object fh, bint binary=*) except *
     cpdef void zero(self)
     cpdef void renormalize(self)
+    cpdef void setcomposition(self)
 
 
 cdef class HMMFile:

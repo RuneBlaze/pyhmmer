@@ -805,6 +805,39 @@ cdef class Hit:
     cpdef bint is_duplicate(self):
         return self._hit.flags & p7_hitflags_e.p7_IS_DUPLICATE
 
+cdef class IndirectArray:
+    cdef Py_ssize_t shape[1]
+    cdef Py_ssize_t strides[1]
+    cdef float* data
+    cdef public HMM hmm
+
+    def __cinit__(self, int length, HMM hmm):
+        self.shape[0] = length
+        self.strides[0] = sizeof(float)
+
+    def __init__(self, int length, HMM hmm):
+        self.hmm = hmm
+    
+    cdef set_data(self, float* data):
+        self.data = data
+    
+    def __getbuffer__(self, Py_buffer* buffer, int flags):
+        if self.data is NULL:
+            raise Exception("data is NULL")
+        
+        buffer.buf = <void*> self.data
+        buffer.obj = self
+        buffer.format = 'f'
+        buffer.internal = NULL
+        buffer.itemsize = sizeof(float)
+        buffer.shape = self.shape
+        buffer.strides = self.strides
+        buffer.len = self.shape[0] * sizeof(float)
+        buffer.suboffsets = NULL
+        buffer.ndim = 1
+    
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
 cdef class IndirectMatrix:
     cdef Py_ssize_t shape[2]
@@ -936,6 +969,14 @@ cdef class HMM:
         return view
 
     @property
+    def compo(self):
+        assert self._hmm != NULL
+        wrapper = IndirectArray(self._hmm.abc.K, self)
+        wrapper.set_data(&self._hmm.compo[0])
+        cdef float[:] view = wrapper
+        return view
+
+    @property
     def ins(self):
         assert self._hmm != NULL
         wrapper = IndirectMatrix(self._hmm.M + 1, self._hmm.abc.K, self)
@@ -1048,6 +1089,10 @@ cdef class HMM:
     cpdef void renormalize(self):
         with nogil:
             libhmmer.p7_hmm.p7_hmm_Renormalize(self._hmm)
+    
+    cpdef void setcomposition(self):
+        with nogil:
+            libhmmer.p7_hmm.p7_hmm_SetComposition(self._hmm)
 
     cpdef HMM copy(self):
         """copy(self)\n--
