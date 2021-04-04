@@ -807,21 +807,21 @@ cdef class Hit:
 
 
 cdef class IndirectMatrix:
-    # cdef Py_ssize_t ncols
     cdef Py_ssize_t shape[2]
     cdef Py_ssize_t strides[2]
-    cdef float** data
+    cdef float* data
+    cdef public HMM hmm
 
-    def __cinit__(self, int nrows, int ncols):
+    def __cinit__(self, int nrows, int ncols, HMM hmm):
         self.shape[0] = nrows
         self.shape[1] = ncols
-
-        self.strides[0] = sizeof(float*)
+        self.strides[0] = sizeof(float) * ncols
         self.strides[1] = sizeof(float)
 
-        # self.data = data
+    def __init__(self, int nrows, int ncols, HMM hmm):
+        self.hmm = hmm
     
-    cdef set_data(self, float** data):
+    cdef set_data(self, float* data):
         self.data = data
     
     def __getbuffer__(self, Py_buffer* buffer, int flags):
@@ -835,7 +835,8 @@ cdef class IndirectMatrix:
         buffer.itemsize = sizeof(float)
         buffer.shape = self.shape
         buffer.strides = self.strides
-        buffer.suboffsets = [0, -1]
+        buffer.len = self.shape[0] * self.shape[1] * sizeof(float)
+        buffer.suboffsets = NULL
         buffer.ndim = 2
     
     def __releasebuffer__(self, Py_buffer *buffer):
@@ -929,25 +930,25 @@ cdef class HMM:
     @property
     def mat(self):
         assert self._hmm != NULL
-        wrapper = IndirectMatrix(self._hmm.M + 1, self._hmm.abc.K)
-        wrapper.set_data(self._hmm.mat)
-        cdef float[::view.indirect_contiguous, ::1] view = wrapper
+        wrapper = IndirectMatrix(self._hmm.M + 1, self._hmm.abc.K, self)
+        wrapper.set_data(&self._hmm.mat[0][0])
+        cdef float[:,:] view = wrapper
         return view
 
     @property
     def ins(self):
         assert self._hmm != NULL
-        wrapper = IndirectMatrix(self._hmm.M + 1, self._hmm.abc.K)
-        wrapper.set_data(self._hmm.ins)
-        cdef float[::view.indirect_contiguous, ::1] view = wrapper
+        wrapper = IndirectMatrix(self._hmm.M + 1, self._hmm.abc.K, self)
+        wrapper.set_data(&self._hmm.ins[0][0])
+        cdef float[:,:] view = wrapper
         return view
 
     @property
     def trans(self):
         assert self._hmm != NULL
-        wrapper = IndirectMatrix(self._hmm.M + 1, 7)
-        wrapper.set_data(self._hmm.t)
-        cdef float[::view.indirect_contiguous, ::1] view = wrapper
+        wrapper = IndirectMatrix(self._hmm.M + 1, 7, self)
+        wrapper.set_data(&self._hmm.t[0][0])
+        cdef float[:,:] view = wrapper
         return view
 
     @accession.setter

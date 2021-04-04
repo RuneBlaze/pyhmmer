@@ -166,3 +166,6 @@ dmypy.json
 .ipynb_checkpoints/
 
 # End of https://www.gitignore.io/api/python,c
+
+playground
+test.hmm
