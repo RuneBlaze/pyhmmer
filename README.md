@@ -1,6 +1,15 @@
-# 🐍🟡♦️🟦 pyHMMER [![Stars](https://img.shields.io/github/stars/althonos/pyhmmer.svg?style=social&maxAge=3600&label=Star)](https://github.com/althonos/pyhmmer/stargazers)
+<!-- # 🐍🟡♦️🟦 pyHMMER [![Stars](https://img.shields.io/github/stars/althonos/pyhmmer.svg?style=social&maxAge=3600&label=Star)](https://github.com/althonos/pyhmmer/stargazers) -->
 
-*[Cython](https://cython.org/) bindings and Python interface to [HMMER3](http://hmmer.org/).*
+# pyHMMER - SEPP ver.
+
+This is a personal fork of pyHMMER. If you are not directed here, go see the original repo: https://github.com/althonos/pyhmmer/, and all credits go to
+the original author.
+
+Below is the original README, and this README does not apply here.
+
+--------------------------------
+
+<!-- *[Cython](https://cython.org/) bindings and Python interface to [HMMER3](http://hmmer.org/).*
 
 [![Actions](https://img.shields.io/github/workflow/status/althonos/pyhmmer/Test/master?logo=github&style=flat-square&maxAge=300)](https://github.com/althonos/pyhmmer/actions)
 [![Coverage](https://img.shields.io/codecov/c/gh/althonos/pyhmmer?style=flat-square&maxAge=3600)](https://codecov.io/gh/althonos/pyhmmer/)
@@ -16,7 +25,7 @@
 [![Docs](https://img.shields.io/readthedocs/pyhmmer/latest?style=flat-square&maxAge=600)](https://pyhmmer.readthedocs.io)
 [![Changelog](https://img.shields.io/badge/keep%20a-changelog-8A0707.svg?maxAge=2678400&style=flat-square)](https://github.com/althonos/pyhmmer/blob/master/CHANGELOG.md)
 [![Downloads](https://img.shields.io/badge/dynamic/json?style=flat-square&color=303f9f&maxAge=86400&label=downloads&query=%24.total_downloads&url=https%3A%2F%2Fapi.pepy.tech%2Fapi%2Fprojects%2Fpyhmmer)](https://pepy.tech/project/pyhmmer)
-[![DOI](https://img.shields.io/badge/doi-10.5281%2Fzenodo.4270012-purple?style=flat-square&maxAge=86400)](https://doi.org/10.5281/zenodo.4270012)
+[![DOI](https://img.shields.io/badge/doi-10.5281%2Fzenodo.4270012-purple?style=flat-square&maxAge=86400)](https://doi.org/10.5281/zenodo.4270012) -->
 
 
 ## 🗺️ Overview
