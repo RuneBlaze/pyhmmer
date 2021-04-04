@@ -1044,6 +1044,10 @@ cdef class HMM:
         """
         with nogil:
             libhmmer.p7_hmm.p7_hmm_Zero(self._hmm)
+    
+    cpdef void renormalize(self):
+        with nogil:
+            libhmmer.p7_hmm.p7_hmm_Renormalize(self._hmm)
 
     cpdef HMM copy(self):
         """copy(self)\n--
